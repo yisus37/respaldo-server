@@ -1,0 +1,16 @@
+# escape=`
+FROM mcr.microsoft.com/dotnet/framework/aspnet:4.8.1-windowsservercore-ltsc2022
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+RUN Remove-Website 'Default Web Site';
+# Set up Website: MacMVC
+RUN New-Item -Path 'C:\inetpub\wwwroot\TMS' -Type Directory -Force;
+RUN if(-NOT (Get-IISAppPool 'TMS')) {New-WebAppPool -Name 'TMS' }
+RUN New-Website -Name 'TMS' -PhysicalPath 'C:\inetpub\wwwroot\TMS' -Port 80 -ApplicationPool 'TMS' -Force;
+#COPY [".", "C:/inetpub/wwwroot/TMS"]
+RUN $path='C:\inetpub\wwwroot\TMS'; `
+    $acl = Get-Acl $path; `
+    $newOwner = [System.Security.Principal.NTAccount]('BUILTIN\IIS_IUSRS'); `
+    $acl.SetOwner($newOwner); `
+    dir -r $path | Set-Acl -aclobject $acl
+EXPOSE 80
+# Health check on exposed port

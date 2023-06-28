@@ -1,0 +1,15 @@
+version: '2'
+
+volumes:
+  pgdata:      
+
+services:
+  db:
+      image: 'postgres:latest'
+      restart: always
+      volumes:
+      - pgdata:/var/lib/postgresql/data
+      environment:
+      - POSTGRES_PASSWORD=Y4S@uN6%
+      ports:
+      - '5432:5432'
